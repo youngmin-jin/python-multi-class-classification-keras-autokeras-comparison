@@ -31,7 +31,7 @@ ds_test = ds_test.map(unpack_and_resize)
 Ia_model = ak.ImageClassifier(metrics=['accuracy'], max_trials=20, overwrite=True)
 
 # Train the model
-num_epochs = 50
+num_epochs = 30
 Ia_model.fit(ds_train, epochs=num_epochs)
 
 # summary 
@@ -52,5 +52,22 @@ print(confusion_matrix(y_actual, y_pred))
 print("---- classification report ----")
 print(classification_report(y_actual, y_pred))
 
+print("-------- specific parameters ----------")
+for i, layer in enumerate(Ia_model_result.layers):
+  print(f"Layer {i}: {layer.name} ({layer.__class__.__name__})")
+
+  # Get all layer attributes and print them
+  config = layer.get_config()
+  print("Layer Configuration:")
+  for key, value in config.items():
+    print(f"  {key}: {value}")
+
+  # If the layer has weights, print their shapes
+  if layer.weights:
+    print("Layer Weights:")
+    for weight in layer.weights:
+      print(f"  {weight.name}: shape={weight.shape}")
+
+  print("-" * 50)
 
 
