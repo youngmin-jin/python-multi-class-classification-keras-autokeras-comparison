@@ -43,7 +43,7 @@ ds_train = ds_train.map(preprocessing)
 ds_test = ds_test.map(preprocessing)
 
 # batch and optimize
-batch_size = 16
+batch_size = 32
 ds_train = ds_train.batch(batch_size).cache().prefetch(tf.data.AUTOTUNE)
 ds_test = ds_test.batch(batch_size).cache().prefetch(tf.data.AUTOTUNE)
 
@@ -58,14 +58,14 @@ class Io2_create_model(keras_tuner.HyperModel):
     inputs = tf.keras.Input(shape=image_size+(3,)) 
 
     # hidden layers
-    x = tf.keras.layers.RandomTranslation(height_factor=0.05, width_factor=0.1)(inputs)
+    x = tf.keras.layers.RandomTranslation(0.1, 0.1, fill_mode="reflect", fill_value=0.0, interpolation="bilinear", seed=None)(inputs)
     x = tf.keras.layers.RandomFlip('horizontal')(x)
-    x = tf.keras.layers.RandomRotation(0.05)(x)
+    x = tf.keras.layers.RandomRotation(0.1, fill_mode="reflect", fill_value=0.0, interpolation="bilinear", seed=None)(x)
     x = tf.keras.applications.EfficientNetB7(
         input_shape=(224,224,3)
         , include_top=False
         , weights='imagenet'
-        , drop_connect_rate=hp.Choice("drop_connect_rate", values=[0.0, 0.2, 0.5])
+        , drop_connect_rate=hp.Choice("drop_connect_rate", values=[0.2, 0.5])
         , pooling='avg'
     )(x) 
   
@@ -94,7 +94,7 @@ es = tf.keras.callbacks.EarlyStopping(
 )
 
 # search
-num_epochs = 30
+num_epochs = 20
 Io2_model.search(ds_train, epochs=num_epochs, callbacks=[es])
 
 
